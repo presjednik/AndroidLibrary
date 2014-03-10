@@ -10,6 +10,12 @@ module AndroidLibrary
         String language;
         Date publishedOn;
         Int pages;
+        
+        specification searchBooks 'b => b.isbn.Contains(pattern) || b.title.ToLower().Contains(pattern) 
+                            || b.authors.Any(a => a.ToLower().Contains(pattern))'
+		{
+			String pattern;
+		}
     }
 
     entity Review

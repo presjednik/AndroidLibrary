@@ -417,4 +417,82 @@ public class Book implements java.io.Serializable, AggregateRoot {
 
         return this;
     }
+
+    public static class searchBooks implements java.io.Serializable,
+            Specification<Book> {
+        public searchBooks(
+                final String pattern) {
+            setPattern(pattern);
+        }
+
+        public searchBooks() {
+            this.pattern = "";
+        }
+
+        private static final long serialVersionUID = 0x0097000a;
+
+        private String pattern;
+
+        @com.fasterxml.jackson.annotation.JsonProperty("pattern")
+        @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
+        public String getPattern() {
+            return pattern;
+        }
+
+        public searchBooks setPattern(final String value) {
+            if (value == null)
+                throw new IllegalArgumentException(
+                        "Property \"pattern\" cannot be null!");
+            this.pattern = value;
+
+            return this;
+        }
+
+        public java.util.List<Book> search() throws java.io.IOException {
+            return search(null, null, Bootstrap.getLocator());
+        }
+
+        public java.util.List<Book> search(final ServiceLocator locator)
+                throws java.io.IOException {
+            return search(null, null, locator);
+        }
+
+        public java.util.List<Book> search(
+                final Integer limit,
+                final Integer offset) throws java.io.IOException {
+            return search(limit, offset, Bootstrap.getLocator());
+        }
+
+        public java.util.List<Book> search(
+                final Integer limit,
+                final Integer offset,
+                final ServiceLocator locator) throws java.io.IOException {
+            try {
+                return (locator != null ? locator : Bootstrap.getLocator())
+                        .resolve(DomainProxy.class)
+                        .search(this, limit, offset, null).get();
+            } catch (final InterruptedException e) {
+                throw new java.io.IOException(e);
+            } catch (final java.util.concurrent.ExecutionException e) {
+                throw new java.io.IOException(e);
+            }
+        }
+
+        public long count() throws java.io.IOException {
+            return count(Bootstrap.getLocator());
+        }
+
+        public long count(final ServiceLocator locator)
+                throws java.io.IOException {
+            try {
+                return (locator != null ? locator : Bootstrap.getLocator())
+                        .resolve(DomainProxy.class).count(this).get()
+                        .longValue();
+            } catch (final InterruptedException e) {
+                throw new java.io.IOException(e);
+            } catch (final java.util.concurrent.ExecutionException e) {
+                throw new java.io.IOException(e);
+            }
+        }
+    }
 }

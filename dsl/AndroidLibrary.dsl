@@ -16,6 +16,11 @@ module AndroidLibrary
 		{
 			String pattern;
 		}
+		
+		specification isbnEquals 'b => b.isbn.Equals(isbn)'
+		{
+			String isbn;
+		}
     }
 
     entity Review

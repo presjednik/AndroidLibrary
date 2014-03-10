@@ -2,15 +2,20 @@ package com.dslplatform.examples.android;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -23,10 +28,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SearchView;
 
 import com.dslplatform.client.Bootstrap;
+import com.dslplatform.examples.android.AndroidLibrary.AuthorsBookCount;
 import com.dslplatform.examples.android.AndroidLibrary.Book;
 import com.dslplatform.examples.android.AndroidLibrary.Review;
 import com.dslplatform.examples.android.AndroidLibrary.repositories.BookRepository;
@@ -40,6 +48,7 @@ public class MainActivity extends FragmentActivity {
 	public static ServiceLocator locator;
 	private ListView listView;
 	private SearchView searchView;
+	private final HashMap<String, Long> authorsBookCountMap = new HashMap<String, Long>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -57,15 +66,20 @@ public class MainActivity extends FragmentActivity {
 			final BookArrayAdapter bookAdapter = new BookArrayAdapter(this,
 					R.layout.book_layout, bookList);
 
+			for (Book b : bookList) {
+				countAuthorsBooks(b.getAuthors());
+			}
+
 			listView.setAdapter(bookAdapter);
 			listView.setTextFilterEnabled(true);
-			
+
 			//adding a OnItemClickListener to call the function
 			//for displaying reviews for the book
 			listView.setOnItemClickListener(new OnItemClickListener() {
 				public void onItemClick(AdapterView<?> parent, View view,
 						int position, long id) {
-					final Book book = (Book) parent.getAdapter().getItem(position);
+					final Book book = (Book) parent.getAdapter().getItem(
+							position);
 					getReviews(book.getIsbn());
 				}
 			});
@@ -75,7 +89,7 @@ public class MainActivity extends FragmentActivity {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Gets all reviews for a book using DSL specifications.
 	 * Sends three lists to ListDialogFragment so he can display the reviews.
@@ -117,7 +131,58 @@ public class MainActivity extends FragmentActivity {
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * Counts the number of books associated with an author. 
+	 * Iterates through the list to count books for all authors of a book. 
+	 * Uses report for counting the books.
+	 * 
+	 * @param list - list of authors for a book
+	 */
+	private void countAuthorsBooks(List<String> list) {
+		final AuthorsBookCount count = new AuthorsBookCount();
+
+		for (String s : list) {
+			count.setAuthor(s);
+			try {
+				authorsBookCountMap.put(s, count.populate(locator)
+						.getBookCount());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 	
+	/**
+	 * Displays an AlertDialog which shows how many books an author has in our database.
+	 */
+	private void showAuthorsBookCount() {
+		final List<String> listString = new ArrayList<String>();
+
+		//adding data from the hashMap (where all the information about book 
+		//count for author is stored) to the listString holding only one string 
+		//so it could be displayed in the simple_list_item_1
+		for (Map.Entry<String, Long> entry : authorsBookCountMap.entrySet()) {
+			final StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append(entry.getKey() + ": " + entry.getValue());
+			listString.add(stringBuilder.toString());
+		}
+
+		final AlertDialog dialog;
+		final ListAdapter itemlist = new ArrayAdapter<String>(this,
+				android.R.layout.simple_list_item_1,
+				listString.toArray(new String[listString.size()]));
+		final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Authors book count");
+		builder.setAdapter(itemlist, null);
+		builder.setNegativeButton(R.string.close, new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+			}
+		});
+		dialog = builder.create();
+		dialog.show();
+	}
 
 	/**
 	 * Call to initialize an instance of ServiceLocator with a dsl-project.ini
@@ -136,6 +201,9 @@ public class MainActivity extends FragmentActivity {
 		switch (item.getItemId()) {
 		case R.id.search:
 			onSearchRequested();
+			return true;
+		case R.id.report:
+			showAuthorsBookCount();
 			return true;
 		default:
 			return false;

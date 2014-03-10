@@ -11,6 +11,7 @@
     <string name="reviewd_by">Reviewd by</string>
     <string name="comment">Comment</string>
     <string name="choose_rating">Choose a rating</string>
+    <string name="report">Report</string>
 
     <string-array name="rating_arrays">
         <item>1</item>

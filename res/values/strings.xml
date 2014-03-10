@@ -6,5 +6,18 @@
     <string name="hello_world">Hello world!</string>
     <string name="search_hint">Search books</string>
     <string name="close">Close</string>
+    <string name="add_review">Add review</string>
+    <string name="rating">Rating</string>
+    <string name="reviewd_by">Reviewd by</string>
+    <string name="comment">Comment</string>
+    <string name="choose_rating">Choose a rating</string>
+
+    <string-array name="rating_arrays">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
 
 </resources>

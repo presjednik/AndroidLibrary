@@ -22,6 +22,8 @@ public class ListDialogFragment extends DialogFragment {
 				"comments");
 		final List<Integer> listImages = getArguments().getIntegerArrayList(
 				"images");
+		
+		final String bookIsbn = getArguments().getString("isbn");
 
 		final ReviewArrayAdapter adapter = new ReviewArrayAdapter(
 				getActivity(), R.layout.review_layout, listImages, listEmails,
@@ -38,6 +40,18 @@ public class ListDialogFragment extends DialogFragment {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 
+					}
+				})
+				.setPositiveButton(R.string.add_review, new OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						//creates a new AddDialogFragment for adding a review
+						AddDialogFragment add = new AddDialogFragment();
+						Bundle bundle = new Bundle();
+						bundle.putString("isbn", bookIsbn);
+						add.setArguments(bundle);
+						add.show(getFragmentManager(), "");
 					}
 				});
 		return builder.create();

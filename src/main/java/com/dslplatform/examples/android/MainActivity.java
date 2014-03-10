@@ -1,28 +1,42 @@
 package com.dslplatform.examples.android;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.slf4j.Logger;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
+import android.widget.ListView;
 
 import com.dslplatform.client.Bootstrap;
-import com.dslplatform.examples.android.R;
+import com.dslplatform.examples.android.AndroidLibrary.Book;
+import com.dslplatform.examples.android.utilities.BookArrayAdapter;
 import com.dslplatform.patterns.ServiceLocator;
 
 public class MainActivity extends Activity {
 	
 	public static ServiceLocator locator;
+	private ListView listView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		listView = (ListView) findViewById(R.id.list_books);
 
 		try {
 			locator = init();
+			
+			//get all books from the database
+			final List<Book> bookList = Book.findAll();
+
+			final BookArrayAdapter bookAdapter = new BookArrayAdapter(this,
+					R.layout.book_layout, bookList);
+
+			listView.setAdapter(bookAdapter);
+			listView.setTextFilterEnabled(true);
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

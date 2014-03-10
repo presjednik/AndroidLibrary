@@ -7,7 +7,12 @@
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="19" />
-        
+
+    <instrumentation
+        android:name="android.test.InstrumentationTestRunner"
+        android:targetPackage="com.dslplatform.examples.android" >
+    </instrumentation>
+
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -15,6 +20,8 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <uses-library android:name="android.test.runner" />
+        
         <activity
             android:name="com.dslplatform.examples.android.MainActivity"
             android:label="@string/app_name" >
